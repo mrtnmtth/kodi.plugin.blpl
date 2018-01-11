@@ -137,6 +137,14 @@ def setViewMode(mode):
     if mode in modes and skin in modes[mode]:
         xbmc.executebuiltin('Container.SetViewMode(%d)' % modes[mode][skin])
 
+# if url not set, exit and show addon settings
+if not url:
+    log("No source URL set. Exiting.", xbmc.LOGWARNING)
+    xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
+    xbmc.executebuiltin('Action(PreviousMenu)')
+    xbmc.executebuiltin('Addon.OpenSettings(%s)' % ADDON_ID)
+    sys.exit(0)
+
 catalog = retrieveCatalog()
 data = catalog['data']
 meta = catalog['__meta']
