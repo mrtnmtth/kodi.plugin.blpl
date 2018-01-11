@@ -55,46 +55,69 @@ def retrieveCatalog():
         log("error retrieving catalog - " + str(e), xbmc.LOGERROR)
         xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
 
+def getValue(dic, key1, key2=None, key3=None):
+    try:
+        if key3:
+            return dic[key1][key2][key3]
+        if key2:
+            return dic[key1][key2]
+        else:
+            return dic[key1]
+    # return empty string if there is a KeyError
+    except:
+        return ''
+
 def listSeries():
     xbmcplugin.setContent(ADDON_HANDLE, 'tvshows')
-    for i,d in enumerate(data):
-        try:
-            plot = d['plot']
-        except KeyError as e:
-            plot = ''
-        li = xbmcgui.ListItem(d['title'], d['tagline'])
-        li.setArt({ 'thumb'    : d['cover']['path'],
-                    'poster'   : d['cover']['path'],
-                    'fanart'   : d['cover_image']['path'],
-                    'clearart' : d['logo']['path'],
-                    'clearlogo': d['logo']['path'] })
-        li.setInfo('video', { 'plot': plot,
-                              'plotoutline': d['tagline'],
-                              'trailer': d['cover_video']['path'] })
-        url = ADDON_BASE + '?series=' + str(i) + '&view=1'
-        xbmcplugin.addDirectoryItem(ADDON_HANDLE, url=url, listitem=li,
-                                    isFolder=True)
+    try:
+        for i,d in enumerate(data):
+            li = xbmcgui.ListItem(getValue(d, 'title'), getValue(d, 'tagline'))
+            li.setArt({
+                'thumb'    : getValue(d, 'cover', 'path'),
+                'poster'   : getValue(d, 'cover', 'path'),
+                'fanart'   : getValue(d, 'cover_image', 'path'),
+                'clearart' : getValue(d, 'logo', 'path'),
+                'clearlogo': getValue(d, 'logo', 'path')
+            })
+            li.setInfo('video', {
+                'plot':        getValue(d, 'plot'),
+                'plotoutline': getValue(d, 'tagline'),
+                'trailer':     getValue(d, 'cover_video', 'path')
+            })
+            url = ADDON_BASE + '?series=' + str(i) + '&view=1'
+            xbmcplugin.addDirectoryItem(ADDON_HANDLE, url=url, listitem=li,
+                                        isFolder=True)
+    except Exception as e:
+        log("error showing series list - " + str(e), xbmc.LOGERROR)
+        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
     xbmcplugin.endOfDirectory(ADDON_HANDLE)
 
 def listEpisodes(series, season=0):
     xbmcplugin.setContent(ADDON_HANDLE, 'episodes')
     try:
-        xbmcplugin.setPluginCategory(ADDON_HANDLE, data[series]['title'])
+        xbmcplugin.setPluginCategory(ADDON_HANDLE,
+                                     getValue(data, series, 'title'))
         xbmcplugin.setPluginFanart(ADDON_HANDLE,
-                                   data[series]['cover_image']['path'])
+                                   getValue(data, series, 'cover_image',
+                                            'path'))
         episodes = data[series]['seasons']['data'][season]['episodes']['data']
         for ep in episodes:
-            li = xbmcgui.ListItem(ep['title'], ep['tagline'])
-            li.setArt({ 'thumb': ep['videos']['screenshots']['path'],
-                        'poster': ep['cover']['path'] })
-            li.setInfo('video', { 'episode': int(ep['number']),
-                                  'season' : str(season + 1),
-                                  'plot'   : ep['synopsis']['long'],
-                                  'plotoutline': ep['synopsis']['short'],
-                                  'title'  : ep['title'],
-                                  'tagline': ep['tagline'] })
+            li = xbmcgui.ListItem(getValue(ep, 'title'),
+                                  getValue(ep, 'tagline'))
+            li.setArt({
+                'thumb' : getValue(ep, 'videos', 'screenshots', 'path'),
+                'poster': getValue(ep, 'cover', 'path')
+            })
+            li.setInfo('video', {
+                'episode'    : getValue(ep, 'number'),
+                'season'     : str(season + 1),
+                'plot'       : getValue(ep, 'synopsis', 'long'),
+                'plotoutline': getValue(ep, 'synopsis', 'short'),
+                'title'      : getValue(ep, 'title'),
+                'tagline'    : getValue(ep, 'tagline')
+            })
             xbmcplugin.addDirectoryItem(ADDON_HANDLE,
-                                        ep['videos']['hls']['path'],
+                                        getValue(ep, 'videos', 'hls', 'path'),
                                         listitem=li)
     except Exception as e:
         log("error showing episode list - " + str(e), xbmc.LOGERROR)
