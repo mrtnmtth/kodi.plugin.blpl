@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.blpl" name="blpl" version="0.0.10" provider-name="mttronc">
+<addon id="plugin.video.blpl" name="blpl" version="0.0.11" provider-name="mttronc">
   <requires>
-    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="xbmc.python" version="2.25.0"/>
     <import addon="script.module.simplecache" version="1.0.0" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">

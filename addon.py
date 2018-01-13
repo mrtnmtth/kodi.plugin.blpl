@@ -89,7 +89,7 @@ def listSeries():
                                         isFolder=True)
     except Exception as e:
         log("error showing series list - " + str(e), xbmc.LOGERROR)
-        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
+        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30002), ICON, 4000)
     xbmcplugin.endOfDirectory(ADDON_HANDLE)
 
 def listEpisodes(series, season=0):
@@ -121,7 +121,7 @@ def listEpisodes(series, season=0):
                                         listitem=li)
     except Exception as e:
         log("error showing episode list - " + str(e), xbmc.LOGERROR)
-        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
+        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30002), ICON, 4000)
     xbmcplugin.endOfDirectory(ADDON_HANDLE)
 
 def setViewMode(mode):
