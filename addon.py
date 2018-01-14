@@ -25,13 +25,13 @@ def log(msg, level=xbmc.LOGNOTICE):
 def parseArgs():
     args = urlparse.parse_qs(sys.argv[2][1:])
     # args is a dictionary with the values in lists
-    series = args.get('series', None)
+    series = args.get('series', 0)
     if series:
         series = int(series[0])
-    season = args.get('season', None)
+    season = args.get('season', 0)
     if season:
         season = int(season[0])
-    view = args.get('view', None)
+    view = args.get('view', 0)
     # 1: episodes, 2: seasons
     if view:
         view = int(view[0])
@@ -84,11 +84,46 @@ def listSeries():
                 'plotoutline': getValue(d, 'tagline'),
                 'trailer':     getValue(d, 'cover_video', 'path')
             })
-            url = ADDON_BASE + '?series=' + str(i) + '&view=1'
+            url = ADDON_BASE + '?series=' + str(i)
+            try:
+                season_count = int(d['seasons']['count'])
+            except KeyError:
+                season_count = 0
+            if season_count > 1:
+                url += '&view=2' # seasons view
+            else:
+                url += '&view=1' # episodes view
             xbmcplugin.addDirectoryItem(ADDON_HANDLE, url=url, listitem=li,
                                         isFolder=True)
     except Exception as e:
         log("error showing series list - " + str(e), xbmc.LOGERROR)
+        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30002), ICON, 4000)
+    xbmcplugin.endOfDirectory(ADDON_HANDLE)
+
+def listSeasons(series):
+    xbmcplugin.setContent(ADDON_HANDLE, 'tvshows')
+    try:
+        xbmcplugin.setPluginCategory(ADDON_HANDLE, getValue(data, series,
+                                                            'title'))
+        xbmcplugin.setPluginFanart(ADDON_HANDLE, getValue(data, series,
+                                                          'cover_image',
+                                                          'path'))
+        for i, sn in enumerate(data[series]['seasons']['data']):
+            li = xbmcgui.ListItem(getValue(sn, 'title'))
+            li.setArt({
+                'thumb' : getValue(sn, 'cover', 'path'),
+                'poster': getValue(sn, 'cover', 'path')
+            })
+            li.setInfo('video', {
+                'plot'       : getValue(sn, 'plot'),
+                'title'      : getValue(sn, 'title')
+            })
+            url = ADDON_BASE + '?series=' + str(series) + '&season=' + str(i)
+            url += '&view=1'
+            xbmcplugin.addDirectoryItem(ADDON_HANDLE, url, listitem=li,
+                                        isFolder=True)
+    except Exception as e:
+        log("error showing season list - " + str(e), xbmc.LOGERROR)
         xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30002), ICON, 4000)
     xbmcplugin.endOfDirectory(ADDON_HANDLE)
 
@@ -151,8 +186,11 @@ meta = catalog['__meta']
 
 series, season, view = parseArgs()
 if (view == 1):
-    listEpisodes(series)
+    listEpisodes(series, season)
     setViewMode('infowall')
+elif (view == 2):
+    listSeasons(series)
+    setViewMode('poster')
 else:
     listSeries()
     setViewMode('poster')
