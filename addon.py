@@ -19,7 +19,6 @@ LANGUAGE     = ADDON.getLocalizedString
 url = ADDON.getSetting('url')
 
 def log(msg, level=xbmc.LOGNOTICE):
-#    level=xbmc.LOGERROR
     xbmc.log(ADDON_ID + ' - ' + msg, level)
 
 def parseArgs():
@@ -130,11 +129,11 @@ def listSeasons(series):
 def listEpisodes(series, season=0):
     xbmcplugin.setContent(ADDON_HANDLE, 'episodes')
     try:
-        xbmcplugin.setPluginCategory(ADDON_HANDLE,
-                                     getValue(data, series, 'title'))
-        xbmcplugin.setPluginFanart(ADDON_HANDLE,
-                                   getValue(data, series, 'cover_image',
-                                            'path'))
+        xbmcplugin.setPluginCategory(ADDON_HANDLE, getValue(data, series,
+                                                            'title'))
+        xbmcplugin.setPluginFanart(ADDON_HANDLE, getValue(data, series,
+                                                          'cover_image',
+                                                          'path'))
         episodes = data[series]['seasons']['data'][season]['episodes']['data']
         for ep in episodes:
             li = xbmcgui.ListItem(getValue(ep, 'title'),
