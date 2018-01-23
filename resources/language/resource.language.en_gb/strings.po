@@ -27,3 +27,7 @@ msgstr ""
 msgctxt "#30002"
 msgid "An error occured"
 msgstr ""
+
+msgctxt "#30003"
+msgid "Error fetching source data"
+msgstr ""

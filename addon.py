@@ -52,7 +52,9 @@ def retrieveCatalog():
         return catalog
     except Exception as e:
         log("error retrieving catalog - " + str(e), xbmc.LOGERROR)
-        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30001), ICON, 4000)
+        xbmcgui.Dialog().notification(ADDON_NAME, LANGUAGE(30003), ICON, 4000)
+        xbmc.executebuiltin('Action(PreviousMenu)')
+        sys.exit(0)
 
 def getValue(dic, key1, key2=None, key3=None):
     try:
